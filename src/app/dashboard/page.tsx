@@ -4,7 +4,12 @@ import React from "react";
 
 const DashboardPage = () => {
   const { user } = useUser();
-  return <div>{user?.firstName}</div>;
+  return (
+    <div>
+      {user?.firstName}
+      {user?.lastName}
+    </div>
+  );
 };
 
 export default DashboardPage;
