@@ -39,6 +39,14 @@ const items = [
   },
 ];
 
+const projects = [
+  { name: "Project 1" },
+  { name: "Project 2" },
+  { name: "Project 3" },
+  { name: "Project 4" },
+  { name: "Project 5" },
+];
+
 export function AppSidebar() {
   const pathname = usePathname();
   return (
@@ -63,6 +71,35 @@ export function AppSidebar() {
                         <item.icon />
                         <span>{item.title}</span>
                       </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {projects.map((project) => {
+                return (
+                  <SidebarMenuItem key={project.name}>
+                    <SidebarMenuButton asChild>
+                      <div>
+                        <div
+                          className={cn(
+                            "text-primary flex size-6 items-center justify-center rounded-sm border bg-white text-sm",
+                            {
+                              "bg-primary text-white": true,
+                            },
+                          )}
+                        >
+                          {project.name[0]}
+                        </div>
+                        <span>{project.name}</span>
+                      </div>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
