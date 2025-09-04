@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useRefetch from "@/hooks/use-refetch";
 import { api } from "@/trpc/react";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -16,6 +18,7 @@ type FormData = {
 const CreatePage = () => {
   const { register, handleSubmit, reset } = useForm<FormData>();
   const createProject = api.project.createProject.useMutation();
+  const refetch = useRefetch();
 
   function onSubmit(data: FormData) {
     // window.alert(JSON.stringify(data, null, 2));
@@ -28,6 +31,7 @@ const CreatePage = () => {
       {
         onSuccess: () => {
           toast.success("Project created successfully");
+          refetch();
           reset();
         },
         onError: (err) => {
