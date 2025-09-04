@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/trpc/react";
-import { on } from "events";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -74,10 +73,11 @@ const CreatePage = () => {
             <Input
               {...register("githubToken")}
               placeholder="GitHub Token (Optional)"
-              required
             />
             <div className="h-4"></div>
-            <Button type="submit">Check Project</Button>
+            <Button type="submit" disabled={createProject.isPending}>
+              Check Project
+            </Button>
           </form>
         </div>
       </div>
