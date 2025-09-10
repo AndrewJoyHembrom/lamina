@@ -7,6 +7,11 @@ export const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
 });
 
+console.log("GITHUB_TOKEN set?", !!process.env.GITHUB_TOKEN);
+const rate = await octokit.rest.rateLimit.get();
+console.log("GitHub rate limit:", rate.data.rate);
+
+
 type Response = {
     commitMessage: string;
     commitHash: string;

@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Document } from 'langchain/document';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -51,54 +52,31 @@ ${diff}
   return response.response.text();
 };
 
-// console.log(await summarizeCommit(`
-//     diff --git a/.vscode/settings.json b/.vscode/settings.json
-// new file mode 100644
-// index 0000000..6b0e5ab
-// --- /dev/null
-// +++ b/.vscode/settings.json
-// @@ -0,0 +1,3 @@
-// +{
-// +    "postman.settings.dotenv-detection-notification-visibility": false
-// +}
-// \ No newline at end of file
-// diff --git a/src/app/dashboard/page.tsx b/src/app/(protected)/dashboard/page.tsx
-// similarity index 100%
-// rename from src/app/dashboard/page.tsx
-// rename to src/app/(protected)/dashboard/page.tsx
-// diff --git a/src/app/(protected)/layout.tsx b/src/app/(protected)/layout.tsx
-// new file mode 100644
-// index 0000000..df52429
-// --- /dev/null
-// +++ b/src/app/(protected)/layout.tsx
-// @@ -0,0 +1,29 @@
-// +import { SidebarProvider } from "@/components/ui/sidebar";
-// +import { UserButton } from "@clerk/nextjs";
-// +import React from "react";
-// +
-// +type Props = {
-// +  children: React.ReactNode;
-// +};
-// +
-// +const SidebarLayout = ({ children }: Props) => {
-// +  return (
-// +    <SidebarProvider>
-// +      {/* <AppSidebar/> */}
-// +      <main className="m-2 w-full">
-// +        <div className="border-sidebar-border bg-sidebar flex items-center gap-2 rounded-md border p-2 px-4 shadow">
-// +          {/* <SearchBar/> */}
-// +          <div className="ml-auto"></div>
-// +          <UserButton />
-// +        </div>
-// +        <div className="h-4"></div>
-// +        {/* main content */}
-// +        <div className="border-sidebar-border bg-sidebar h-[calc(100vh-6rem)] overflow-y-scroll rounded-md border p-4 shadow">
-// +          {children}
-// +        </div>
-// +      </main>
-// +    </SidebarProvider>
-// +  );
-// +};
-// +
-// +export default SidebarLayout;
-//     `));
+export async function summarizeCode(doc: Document) {
+  console.log("getting summary for: ", doc.metadata.source)
+  try {
+    const code = doc.pageContent.slice(0, 10000);
+    const response = await model.generateContent([
+    `You are an intelligent senior software engineer who specialises in onboarding junior software engineers onto projects.
+    You are onboarding a junior software engineer and explaining to them the purpose of the ${doc.metadata.source} file.
+    Here is the code:
+    ---
+    ${code}
+    ---
+    Give a summary no more than 100 words of the code above
+    `
+    ]);
+    return response.response.text();
+  } catch (e) { 
+    return ''
+  }
+}
+
+export async function generateEmbedding(summary: string) { 
+  const model = genAI.getGenerativeModel({
+    model: 'text-embedding-004',
+  });
+  const result = await model.embedContent(summary);
+  const embedding = result.embedding;
+  return embedding.values;
+}
