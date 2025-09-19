@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import MDEditor from "@uiw/react-md-editor";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -50,7 +51,10 @@ const AskQuestionCard = () => {
               <Image src="/logo.png" alt="lamina" width={40} height={40} />
             </DialogTitle>
           </DialogHeader>
-          {answer}
+          <MDEditor.Markdown
+            source={answer}
+            className="!h-full max-h-[40vh] max-w-[70vw] overflow-scroll"
+          />
           <h1>Files References</h1>
           {filesReferences.map((file) => {
             return <span key={file.fileName}>{file.fileName}</span>;
