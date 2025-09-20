@@ -26,12 +26,14 @@ const AskQuestionCard = () => {
   const [answer, setAnswer] = React.useState("");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setAnswer("");
+    setFilesReferences([]);
     e.preventDefault();
     if (!project?.id) return;
     setLoading(true);
-    setOpen(true);
 
     const { output, filesReferences } = await askQuestion(question, project.id);
+    setOpen(true);
     setFilesReferences(filesReferences);
 
     for await (const delta of readStreamableValue(output)) {
@@ -45,7 +47,7 @@ const AskQuestionCard = () => {
   return (
     <>
       <Dialog open={opem} onOpenChange={setOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[80vw]">
           <DialogHeader>
             <DialogTitle>
               <Image src="/logo.png" alt="lamina" width={40} height={40} />
@@ -55,10 +57,18 @@ const AskQuestionCard = () => {
             source={answer}
             className="!h-full max-h-[40vh] max-w-[70vw] overflow-scroll"
           />
-          <h1>Files References</h1>
+          <Button
+            type="button"
+            onClick={() => {
+              setOpen(false);
+            }}
+          >
+            Close
+          </Button>
+          {/* <h1>Files References</h1>
           {filesReferences.map((file) => {
             return <span key={file.fileName}>{file.fileName}</span>;
-          })}
+          })} */}
         </DialogContent>
       </Dialog>
       <Card className="relative col-span-3">
@@ -73,7 +83,9 @@ const AskQuestionCard = () => {
               onChange={(e) => setQuestion(e.target.value)}
             />
             <div className="h-4"></div>
-            <Button type="submit">Ask Lamina!</Button>
+            <Button type="submit" disabled={loading}>
+              Ask Lamina!
+            </Button>
           </form>
         </CardContent>
       </Card>
