@@ -14,6 +14,9 @@ import React from "react";
 import Image from "next/image";
 import { askQuestion } from "./actions";
 import { readStreamableValue } from "@ai-sdk/rsc";
+import CodeReferences from "./code-references";
+import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 const AskQuestionCard = () => {
   const { project } = useProject();
@@ -24,6 +27,7 @@ const AskQuestionCard = () => {
     { fileName: string; sourceCode: string; summary: string }[]
   >([]);
   const [answer, setAnswer] = React.useState("");
+  const saveAnswer = api.project.saveAnswer.useMutation();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     setAnswer("");
@@ -47,16 +51,44 @@ const AskQuestionCard = () => {
   return (
     <>
       <Dialog open={opem} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[80vw]">
+        <DialogContent className="max-h-[90vh] overflow-auto sm:max-w-[80vw]">
           <DialogHeader>
-            <DialogTitle>
-              <Image src="/logo.png" alt="lamina" width={40} height={40} />
-            </DialogTitle>
+            <div className="flex items-center gap-2">
+              <DialogTitle>
+                <Image src="/logo.png" alt="lamina" width={40} height={40} />
+              </DialogTitle>
+              <Button
+                disabled={saveAnswer.isPending}
+                variant={"outline"}
+                onClick={() => {
+                  saveAnswer.mutate(
+                    {
+                      projectId: project!.id,
+                      question,
+                      answer,
+                      filesReferences,
+                    },
+                    {
+                      onSuccess: () => {
+                        toast.success("Answer Saved");
+                      },
+                      onError: () => {
+                        toast.error("Failed to save answer!");
+                      },
+                    },
+                  );
+                }}
+              >
+                Save Answer
+              </Button>
+            </div>
           </DialogHeader>
           <MDEditor.Markdown
             source={answer}
             className="!h-full max-h-[40vh] max-w-[70vw] overflow-scroll"
           />
+          <div className="h-4"></div>
+          <CodeReferences filesReferences={filesReferences} />
           <Button
             type="button"
             onClick={() => {
@@ -65,10 +97,6 @@ const AskQuestionCard = () => {
           >
             Close
           </Button>
-          {/* <h1>Files References</h1>
-          {filesReferences.map((file) => {
-            return <span key={file.fileName}>{file.fileName}</span>;
-          })} */}
         </DialogContent>
       </Dialog>
       <Card className="relative col-span-3">
