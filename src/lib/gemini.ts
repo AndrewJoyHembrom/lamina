@@ -1,10 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Document } from 'langchain/document';
+import { text } from 'stream/consumers';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 const model = genAI.getGenerativeModel({
-  model: 'gemini-1.5-flash',
+  model: 'gemini-2.5-flash',
 });
 
 export const aiSummarizeCommit = async (diff: string) => {
@@ -56,16 +57,23 @@ export async function summarizeCode(doc: Document) {
   console.log("getting summary for: ", doc.metadata.source)
   try {
     const code = doc.pageContent.slice(0, 10000);
-    const response = await model.generateContent([
-    `You are an intelligent senior software engineer who specialises in onboarding junior software engineers onto projects.
+    const response = await model.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [
+    {text: `You are an intelligent senior software engineer who specialises in onboarding junior software engineers onto projects.
     You are onboarding a junior software engineer and explaining to them the purpose of the ${doc.metadata.source} file.
     Here is the code:
     ---
     ${code}
     ---
     Give a summary no more than 100 words of the code above
-    `
-    ]);
+    `}
+    ]
+        }
+      ]
+    });
     return response.response.text();
   } catch (e) { 
     return ''
